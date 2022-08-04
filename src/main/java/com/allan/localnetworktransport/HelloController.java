@@ -71,17 +71,33 @@ public class HelloController {
             String ip = receiveIpTextField.getText();
             String port = receivePortTextField.getText();
             if (ip != null && ip.length() > 0 && port != null && port.length() > 0) {
-                int portInt = Integer.parseInt(port);
+                int portInt;
+                try{
+                    portInt = Integer.parseInt(port);
+                } catch (Exception e1) {
+                    receiveInfo.setText("ip和port没有正确填写");
+                    return;
+                }
+
                 Receiver receiver = new Receiver();
+                receiver.setInfoCallback(s->{
+                    Platform.runLater(()->{
+                        receiveInfo.setText(s);
+                    });
+                });
                 receiver.init();
                 receiver.connect(ip, portInt, Consts.NET_COMING);
                 connector = receiver;
+            } else {
+                receiveInfo.setText("ip和port没有正确填写");
             }
         });
 
         receiveRecFileBtn.setOnMouseClicked(e->{
             IConnect c = connector;
-            if (c instanceof Receiver r) {
+            if (c == null) {
+                receiveInfo.setText("尚未连接，请点击连接按钮！");
+            } else if (c instanceof Receiver r) {
                 r.receiveFile(receiveFileTextField.getText());
             }
         });

@@ -7,6 +7,7 @@ import com.allan.localnetworktransport.bean.Consts;
 import com.allan.localnetworktransport.util.ThreadCreator;
 
 import java.io.*;
+import java.net.NoRouteToHostException;
 import java.net.Socket;
 
 public class Receiver implements IReceiver, IConnect {
@@ -15,6 +16,8 @@ public class Receiver implements IReceiver, IConnect {
     private String mReceiveFile;
     private Socket mClientSocket;
     private final Object waitForStartReceiverLock = new Object();
+
+    private boolean mIsThreadStarting = false;
 
     @Override
     public void init() {
@@ -40,6 +43,7 @@ public class Receiver implements IReceiver, IConnect {
     public void connect(String ip, int port, String helloWords) {
         ThreadCreator.newThread(()->{
             try {
+                System.out.println("接受线程开始！");
                 byte[] bytes = new byte[Consts.PAGE_SIZE];
                 int len = Integer.MAX_VALUE;
                 try (Socket client = new Socket(ip, port);
@@ -70,14 +74,26 @@ public class Receiver implements IReceiver, IConnect {
                     throw new RuntimeException(e);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                if (e instanceof NoRouteToHostException) {
+                    callback.onInfo("IP或者port不对。重新填写");
+                } else {
+                    throw new RuntimeException(e);
+                }
             }
+
+            System.out.println("接受线程结束！");
         }).start();
     }
 
     @Override
     public void receiveFile(String saveFilePath) {
         mReceiveFile = saveFilePath;
+
+        if (mClientSocket == null || mClientSocket.isClosed()) {
+            callback.onInfo("尚未建立链接，请点击连接。");
+            return;
+        }
+
         if (mReceiveFile == null) {
             callback.onInfo("没有存储文件路径。");
             return;
