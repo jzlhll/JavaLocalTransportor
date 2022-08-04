@@ -1,14 +1,16 @@
 package com.allan.localnetworktransport.impl;
 
+import com.allan.localnetworktransport.HelloApplication;
 import com.allan.localnetworktransport.arch.IConnect;
 import com.allan.localnetworktransport.arch.IInfoCallback;
 import com.allan.localnetworktransport.arch.IReceiver;
 import com.allan.localnetworktransport.bean.Consts;
 import com.allan.localnetworktransport.util.ThreadCreator;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import java.io.*;
-import java.net.NoRouteToHostException;
-import java.net.Socket;
+import java.net.*;
 
 public class Receiver implements IReceiver, IConnect {
     private IInfoCallback callback;
@@ -17,10 +19,13 @@ public class Receiver implements IReceiver, IConnect {
     private Socket mClientSocket;
     private final Object waitForStartReceiverLock = new Object();
 
-    private boolean mIsThreadStarting = false;
-
     @Override
     public void init() {
+        HelloApplication.sClosedProp.addListener((observableValue, aBoolean, t1) -> {
+            if (t1 != null && t1) {
+                destroy();
+            }
+        });
     }
 
     @Override
@@ -40,16 +45,35 @@ public class Receiver implements IReceiver, IConnect {
     }
 
     @Override
-    public void connect(String ip, int port, String helloWords) {
+    public void connect(String host, int port, String helloWords) {
         ThreadCreator.newThread(()->{
             try {
                 System.out.println("接受线程开始！");
                 byte[] bytes = new byte[Consts.PAGE_SIZE];
                 int len = Integer.MAX_VALUE;
-                try (Socket client = new Socket(ip, port);
-                     DataOutputStream dos = new DataOutputStream(client.getOutputStream());
-                     BufferedInputStream bis = new BufferedInputStream(client.getInputStream())) {
-                    mClientSocket = client;
+                Socket client = mClientSocket = new Socket();
+                var address = host != null ? new InetSocketAddress(host, port) :
+                        new InetSocketAddress(InetAddress.getByName(null), port);
+                SocketAddress localAddr = null;
+                try {
+                    if (localAddr != null) //可以移除
+                        client.bind(localAddr);
+                    client.connect(address, 500);
+                } catch (IOException | IllegalArgumentException | SecurityException e) {
+                    try {
+                        client.close();
+                    } catch (IOException ce) {
+                        e.addSuppressed(ce);
+                    }
+                    throw e;
+                }
+
+                System.out.println("client init！");
+                DataOutputStream dos = new DataOutputStream(client.getOutputStream());
+                System.out.println("client init！dos");
+                BufferedInputStream bis = new BufferedInputStream(client.getInputStream());
+                System.out.println("client init！bis");
+                try {
                     System.out.println("client is connected!!!");
                     dos.writeUTF(helloWords);
 
@@ -64,6 +88,7 @@ public class Receiver implements IReceiver, IConnect {
                     FileOutputStream fos = new FileOutputStream(mReceiveFile);
                     while (len > 0) {
                         len = bis.read(bytes);
+                        System.out.println("read len " + len);
                         fos.write(bytes, 0, len);
                     }
 
@@ -73,11 +98,14 @@ public class Receiver implements IReceiver, IConnect {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+                bis.close();
+                dos.close();
+                destroy();
             } catch (IOException e) {
                 if (e instanceof NoRouteToHostException) {
                     callback.onInfo("IP或者port不对。重新填写");
                 } else {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
 
