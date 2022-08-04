@@ -1,6 +1,8 @@
 package com.allan.localnetworktransport;
 
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +16,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class HelloApplication extends Application {
-
+    public static final BooleanProperty sClosedProp = new SimpleBooleanProperty(false);
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -48,5 +50,6 @@ public class HelloApplication extends Application {
 
     public static void main(String[] args) {
         launch();
+        sClosedProp.set(true);
     }
 }

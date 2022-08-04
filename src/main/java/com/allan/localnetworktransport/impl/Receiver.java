@@ -3,6 +3,7 @@ package com.allan.localnetworktransport.impl;
 import com.allan.localnetworktransport.arch.IConnect;
 import com.allan.localnetworktransport.arch.IReceiver;
 import com.allan.localnetworktransport.bean.Consts;
+import com.allan.localnetworktransport.util.ThreadCreator;
 
 import java.io.*;
 import java.net.Socket;
@@ -30,7 +31,7 @@ public class Receiver implements IReceiver, IConnect {
 
     @Override
     public void connect(String ip, int port, String helloWords) {
-        new Thread(()->{
+        ThreadCreator.newThread(()->{
             try {
                 byte[] bytes = new byte[Consts.PAGE_SIZE];
                 int len = Integer.MAX_VALUE;

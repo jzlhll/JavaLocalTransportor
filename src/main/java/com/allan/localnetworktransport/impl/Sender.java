@@ -1,9 +1,13 @@
 package com.allan.localnetworktransport.impl;
 
+import com.allan.localnetworktransport.HelloApplication;
 import com.allan.localnetworktransport.arch.IConnect;
 import com.allan.localnetworktransport.arch.IInfoCallback;
 import com.allan.localnetworktransport.arch.ISender;
 import com.allan.localnetworktransport.bean.NamedAddr;
+import com.allan.localnetworktransport.util.ThreadCreator;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import java.io.*;
 import java.net.*;
@@ -20,6 +24,12 @@ public class Sender implements ISender, IConnect {
     @Override
     public void init() {
         sPORT.addAndGet(sPortDelta);
+
+        HelloApplication.sClosedProp.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue) {
+                destroy();
+            }
+        });
     }
 
     @Override
@@ -83,11 +93,14 @@ public class Sender implements ISender, IConnect {
             throw new RuntimeException(e);
         }
 
-        new Thread(()->{
-            while (true){
+        ThreadCreator.newThread(()->{
+            while (true) {
+                if (HelloApplication.sClosedProp.get()) {
+                    break;
+                }
                 //4，监听客户端
                 try {
-                    mCallback.onInfo(Thread.currentThread().getName() + "开始等待客户端进入, " + compared);
+                    mCallback.onInfo("开始等待客户端进入, " + compared);
                     Socket socket = serverSocket.accept();
                     //5，创建服务处理线程
                     SenderThread socketThread = new SenderThread(socket, () -> mSendFile, mCallback);

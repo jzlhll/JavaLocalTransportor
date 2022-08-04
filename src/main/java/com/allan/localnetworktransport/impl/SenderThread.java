@@ -1,6 +1,5 @@
 package com.allan.localnetworktransport.impl;
 
-import com.allan.localnetworktransport.arch.IConnect;
 import com.allan.localnetworktransport.arch.IInfoCallback;
 import com.allan.localnetworktransport.arch.ISenderThreadPresenter;
 import com.allan.localnetworktransport.bean.Consts;
@@ -49,6 +48,7 @@ public class SenderThread extends Thread {
 
     private void runInner() throws IOException {
         worked = true;
+        System.out.println(Thread.currentThread().getName() + "开始。。。");
         //1, 打开输入流，准备读取数据
         while (worked) {
             String str = dataInputStream.readUTF();
@@ -63,7 +63,11 @@ public class SenderThread extends Thread {
                 byte[] bytes = new byte[Consts.PAGE_SIZE];
                 while (worked) {
                     int len = f.read(bytes);
-                    outputStream.write(bytes, 0, len);
+                    if (len > 0) {
+                        outputStream.write(bytes, 0, len);
+                    } else {
+                        break;
+                    }
                 }
 
                 outputStream.close();
@@ -76,6 +80,8 @@ public class SenderThread extends Thread {
         //socket.shutdownOutput();
         //socket.shutdownInput();
         destroy();
+
+        System.out.println(Thread.currentThread().getName() + "结束！");
     }
 
     @Override
