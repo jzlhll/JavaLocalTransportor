@@ -40,9 +40,14 @@ public class Receiver implements IReceiver, IConnect {
                     mClientSocket = client;
                     System.out.println("client is connected!!!");
                     dos.writeUTF(helloWords);
-                    dos.close();
 
-                    waitForStartReceiverLock.wait();
+                    synchronized (waitForStartReceiverLock) {
+                        waitForStartReceiverLock.wait();
+                    }
+
+                    dos.writeUTF(Consts.NET_START_FILE_TRANSPORT);
+                    dos.flush();
+                    dos.close();
 
                     FileOutputStream fos = new FileOutputStream(mReceiveFile);
                     while (len > 0) {
@@ -65,6 +70,8 @@ public class Receiver implements IReceiver, IConnect {
     @Override
     public void receiveFile(String saveFilePath) {
         mReceiveFile = saveFilePath;
-        waitForStartReceiverLock.notify();
+        synchronized (waitForStartReceiverLock) {
+            waitForStartReceiverLock.notify();
+        }
     }
 }

@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0dcb0bde-61eb-475c-83fc-9a39d8651e34" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/allan/localnetworktransport/impl/Sender.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/allan/localnetworktransport/impl/Sender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/allan/localnetworktransport/impl/Receiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/allan/localnetworktransport/impl/Receiver.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,8 +43,10 @@
 }</component>
   <component name="RunManager">
     <configuration name="app" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="com.allan.localnetworktransport.HelloApplication" />
-      <module name="LocalNetworkTransport" />
+      <module name="JavaLocalTransportor" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
