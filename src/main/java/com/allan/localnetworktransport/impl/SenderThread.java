@@ -1,6 +1,9 @@
 package com.allan.localnetworktransport.impl;
 
-import com.allan.localnetworktransport.ISenderThreadPresenter;
+import com.allan.localnetworktransport.arch.IConnect;
+import com.allan.localnetworktransport.arch.IInfoCallback;
+import com.allan.localnetworktransport.arch.ISenderThreadPresenter;
+import com.allan.localnetworktransport.bean.Consts;
 
 import java.io.*;
 import java.net.Socket;
@@ -14,9 +17,11 @@ public class SenderThread extends Thread {
 
     private boolean worked;
 
+    private final IInfoCallback cb;
     //构造器
-    public SenderThread(Socket socket, ISenderThreadPresenter p) {
+    public SenderThread(Socket socket, ISenderThreadPresenter p, IInfoCallback cb) {
         this.socket = socket;
+        this.cb = cb;
         presenter = p;
         try {
             inputStream = socket.getInputStream();
@@ -49,11 +54,14 @@ public class SenderThread extends Thread {
         while (worked) {
             String str = dataInputStream.readUTF();
             //对于服务端而言，我们先等待客户端进入消息。如果我们认可这个事情，则继续下去
-            if (presenter.onReceiveClientInfo(str) == ISenderThreadPresenter.FileSender) {
+            if (Consts.NET_COMING.equals(str)) {
+                cb.onInfo("客户端返回" + str + "，链接成功啦！");
+            } else if (Consts.NET_START_FILE_TRANSPORT.equals(str)) {
+                cb.onInfo("客户端要求发送文件...开始发送...");
                 //5，打开输出流，准备写入数据
                 OutputStream outputStream = socket.getOutputStream();
                 FileInputStream f = new FileInputStream(presenter.supplyFile());
-                byte[] bytes = new byte[2048];
+                byte[] bytes = new byte[Consts.PAGE_SIZE];
                 while (worked) {
                     int len = f.read(bytes);
                     outputStream.write(bytes, 0, len);
@@ -61,6 +69,8 @@ public class SenderThread extends Thread {
 
                 outputStream.close();
                 f.close();
+
+                cb.onInfo("客户端要求发送文件...开始发送完成！");
             }
         }
 

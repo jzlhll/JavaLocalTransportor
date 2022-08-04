@@ -1,4 +1,4 @@
-package com.allan.localnetworktransport;
+package com.allan.localnetworktransport.bean;
 
 public final class NamedAddr {
     public String ip;

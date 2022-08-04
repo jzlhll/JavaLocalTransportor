@@ -1,14 +1,12 @@
 package com.allan.localnetworktransport.impl;
 
-import com.allan.localnetworktransport.IConnect;
-import com.allan.localnetworktransport.ISender;
-import com.allan.localnetworktransport.ISenderThreadPresenter;
-import com.allan.localnetworktransport.NamedAddr;
+import com.allan.localnetworktransport.arch.IConnect;
+import com.allan.localnetworktransport.arch.IInfoCallback;
+import com.allan.localnetworktransport.arch.ISender;
+import com.allan.localnetworktransport.bean.NamedAddr;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Sender implements ISender, IConnect {
@@ -17,6 +15,7 @@ public class Sender implements ISender, IConnect {
     private static final int sPortDelta = (int) (Math.random() * 15 + 1);
 
     private NamedAddr namedAddr;
+    private IInfoCallback mCallback;
 
     @Override
     public void init() {
@@ -90,20 +89,7 @@ public class Sender implements ISender, IConnect {
                 try {
                     Socket socket = serverSocket.accept();
                     //5，创建服务处理线程
-                    SenderThread socketThread = new SenderThread(socket, new ISenderThreadPresenter() {
-                        @Override
-                        public int onReceiveClientInfo(String clientReceiveInfo) {
-                            if ("getFile".equals(clientReceiveInfo)) {
-                                return ISenderThreadPresenter.FileSender;
-                            }
-                            return 0;
-                        }
-
-                        @Override
-                        public String supplyFile() {
-                            return file;
-                        }
-                    });
+                    SenderThread socketThread = new SenderThread(socket, () -> file, mCallback);
                     //6，启动线程
                     socketThread.start();
                 } catch (IOException e) {
@@ -117,5 +103,10 @@ public class Sender implements ISender, IConnect {
     @Override
     public NamedAddr getPreparedNamedAddr() {
         return namedAddr;
+    }
+
+    @Override
+    public void setInfoCallback(IInfoCallback callback) {
+        mCallback = callback;
     }
 }

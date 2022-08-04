@@ -37,7 +37,7 @@ public class HelloApplication extends Application {
             List<File> currentDropped = event.getDragboard().getFiles();
             if (currentDropped != null && currentDropped.size() >= 1) {
                 for (var file : currentDropped) {
-                    controller.setFile(file);
+                    controller.setFile(file.getAbsolutePath());
                 }
             }
         };

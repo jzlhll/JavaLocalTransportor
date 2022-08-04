@@ -1,4 +1,4 @@
-package com.allan.localnetworktransport;
+package com.allan.localnetworktransport.arch;
 
 public interface IConnect {
    void init();
