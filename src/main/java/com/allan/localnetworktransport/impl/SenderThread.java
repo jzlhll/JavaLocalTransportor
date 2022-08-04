@@ -56,24 +56,28 @@ public class SenderThread extends Thread {
             if (Consts.NET_COMING.equals(str)) {
                 cb.onInfo("客户端返回" + str + "，链接成功啦！");
             } else if (Consts.NET_START_FILE_TRANSPORT.equals(str)) {
-                cb.onInfo("客户端要求发送文件...开始发送...");
-                //5，打开输出流，准备写入数据
-                OutputStream outputStream = socket.getOutputStream();
-                FileInputStream f = new FileInputStream(presenter.supplyFile());
-                byte[] bytes = new byte[Consts.PAGE_SIZE];
-                while (worked) {
-                    int len = f.read(bytes);
-                    if (len > 0) {
-                        outputStream.write(bytes, 0, len);
-                    } else {
-                        break;
+                if (presenter.supplyFile() == null || !new File(presenter.supplyFile()).exists()) {
+                    cb.onInfo("服务端没有文件啦！请拉拽一个文件进来！");
+                } else {
+                    cb.onInfo("客户端要求发送文件...开始发送...");
+                    //5，打开输出流，准备写入数据
+                    OutputStream outputStream = socket.getOutputStream();
+                    FileInputStream f = new FileInputStream(presenter.supplyFile());
+                    byte[] bytes = new byte[Consts.PAGE_SIZE];
+                    while (worked) {
+                        int len = f.read(bytes);
+                        if (len > 0) {
+                            outputStream.write(bytes, 0, len);
+                        } else {
+                            break;
+                        }
                     }
+
+                    outputStream.close();
+                    f.close();
+
+                    cb.onInfo("客户端要求发送文件...开始发送完成！");
                 }
-
-                outputStream.close();
-                f.close();
-
-                cb.onInfo("客户端要求发送文件...开始发送完成！");
             }
         }
 
