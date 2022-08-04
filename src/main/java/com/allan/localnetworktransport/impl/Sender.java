@@ -6,14 +6,18 @@ import com.allan.localnetworktransport.arch.IInfoCallback;
 import com.allan.localnetworktransport.arch.ISender;
 import com.allan.localnetworktransport.bean.NamedAddr;
 import com.allan.localnetworktransport.util.ThreadCreator;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.allan.localnetworktransport.util.ThrowableUtil;
 
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Sender implements ISender, IConnect {
+    private final String tag;
+    public Sender() {
+        tag = "Sender-" + System.currentTimeMillis() + ": ";
+    }
+
     private ServerSocket serverSocket;  //套接字
     private static final AtomicInteger sPORT = new AtomicInteger((int) (12000 + Math.random() * 100));
     private static final int sPortDelta = (int) (Math.random() * 15 + 1);
@@ -23,8 +27,6 @@ public class Sender implements ISender, IConnect {
 
     @Override
     public void init() {
-        sPORT.addAndGet(sPortDelta);
-
         HelloApplication.sClosedProp.addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue) {
                 destroy();
@@ -48,7 +50,8 @@ public class Sender implements ISender, IConnect {
 
     private ServerSocket prepareSocket(int retryCount) {
         try {
-            serverSocket = new ServerSocket(sPORT.get());//创建socket
+            System.out.println(tag + "try to prepareSocket!!");
+            serverSocket = new ServerSocket(sPORT.addAndGet(sPortDelta));//创建socket
             serverSocket.setSoTimeout(120*1000); //2分钟超时
             return serverSocket;
         } catch (IOException e) {
@@ -74,33 +77,30 @@ public class Sender implements ISender, IConnect {
 
     @Override
     public NamedAddr prepare() {
-        System.out.println("prepare() -- ");
+        System.out.println(tag + "prepare() -- ");
         serverSocket = prepareSocket(0);
 
         var preparedLocalHost = serverSocket.getInetAddress();
         NamedAddr compared;
         try {
             compared = getLocal(null);
-            System.out.println("prepare() -- compared: " + compared);
+            System.out.println(tag + "prepare() -- compared: " + compared.simpleInfoString());
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
 
         try {
             namedAddr = getLocal(preparedLocalHost);
-            System.out.println("prepare() -- namedAddr: " + namedAddr);
+            System.out.println(tag + "prepare() -- namedAddr: " + namedAddr.simpleInfoString());
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
 
         ThreadCreator.newThread(()->{
-            while (true) {
-                if (HelloApplication.sClosedProp.get()) {
-                    break;
-                }
+            while (!HelloApplication.sClosedProp.get() && serverSocket != null) {
                 //4，监听客户端
                 try {
-                    mCallback.onInfo("开始等待客户端进入, " + compared);
+                    mCallback.onInfo("等待客户端, " + compared.simpleInfoString());
                     Socket socket = serverSocket.accept();
                     //5，创建服务处理线程
                     SenderThread socketThread = new SenderThread(socket, () -> mSendFile, mCallback);
@@ -108,9 +108,12 @@ public class Sender implements ISender, IConnect {
                     socketThread.start();
                 } catch (IOException e) {
                     if (e instanceof SocketTimeoutException se) {
+                        System.out.println(tag + se.getMessage());
                         mCallback.onInfo("超时啦！没有客户端进来");
+                    } else {
+                        System.out.println(tag + "======");
+                        System.out.println(tag + ThrowableUtil.getStackTraceString(e));
                     }
-                    throw new RuntimeException(e);
                 }
             }
         }).start();

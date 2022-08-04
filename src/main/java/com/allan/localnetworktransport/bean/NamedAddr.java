@@ -13,4 +13,8 @@ public final class NamedAddr {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    public String simpleInfoString() {
+        return name + ", ip= " + ip + ", port= " + port;
+    }
 }
