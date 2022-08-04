@@ -34,6 +34,7 @@ public class HelloController {
 
     //...main data....
     private IConnect connector;
+    private String mSendFile;
 
     public void init() {
         asSenderBtn.setOnMouseClicked(v->{
@@ -59,7 +60,7 @@ public class HelloController {
             });
             connector = sender;
             sender.init();
-            sender.prepare();
+            sender.prepare(mSendFile);
         });
 
         receiveConnectBtn.setOnMouseClicked(e->{
@@ -105,8 +106,6 @@ public class HelloController {
 
     public void setFile(String file) {
         System.out.println(file);
-        if (connector instanceof Sender sender) {
-            sender.setFile(file);
-        }
+        mSendFile = file;
     }
 }

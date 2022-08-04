@@ -76,8 +76,13 @@ public class Sender implements ISender, IConnect {
     }
 
     @Override
-    public NamedAddr prepare() {
+    public void prepare(String sendFile) {
         System.out.println(tag + "prepare() -- ");
+        if (sendFile == null || !new File(sendFile).exists()) {
+            mCallback.onInfo("没有文件，请拖拽一个文件进来用于发送。");
+            return;
+        }
+
         serverSocket = prepareSocket(0);
 
         var preparedLocalHost = serverSocket.getInetAddress();
@@ -103,7 +108,7 @@ public class Sender implements ISender, IConnect {
                     mCallback.onInfo("等待客户端, " + compared.simpleInfoString());
                     Socket socket = serverSocket.accept();
                     //5，创建服务处理线程
-                    SenderThread socketThread = new SenderThread(socket, () -> mSendFile, mCallback);
+                    SenderThread socketThread = new SenderThread(socket, sendFile, mCallback);
                     //6，启动线程
                     socketThread.start();
                 } catch (IOException e) {
@@ -117,7 +122,6 @@ public class Sender implements ISender, IConnect {
                 }
             }
         }).start();
-        return compared;
     }
 
     @Override
@@ -130,9 +134,4 @@ public class Sender implements ISender, IConnect {
         mCallback = callback;
     }
 
-    private String mSendFile;
-    @Override
-    public void setFile(String sendFilePathFile) {
-        mSendFile = sendFilePathFile;
-    }
 }

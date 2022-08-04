@@ -1,7 +1,6 @@
 package com.allan.localnetworktransport.impl;
 
 import com.allan.localnetworktransport.arch.IInfoCallback;
-import com.allan.localnetworktransport.arch.ISenderThreadPresenter;
 import com.allan.localnetworktransport.bean.Consts;
 
 import java.io.*;
@@ -9,7 +8,7 @@ import java.net.Socket;
 
 public class SenderThread extends Thread {
     private final Socket socket;
-    private final ISenderThreadPresenter presenter;
+    private final String sendFile;
 
     private InputStream inputStream;
     private DataInputStream dataInputStream;
@@ -18,10 +17,10 @@ public class SenderThread extends Thread {
 
     private final IInfoCallback cb;
     //构造器
-    public SenderThread(Socket socket, ISenderThreadPresenter p, IInfoCallback cb) {
+    public SenderThread(Socket socket, String sendFile, IInfoCallback cb) {
         this.socket = socket;
         this.cb = cb;
-        presenter = p;
+        this.sendFile = sendFile;
         try {
             inputStream = socket.getInputStream();
         } catch (IOException e) {
@@ -56,13 +55,13 @@ public class SenderThread extends Thread {
             if (Consts.NET_COMING.equals(str)) {
                 cb.onInfo("客户端返回" + str + "，链接成功啦！");
             } else if (Consts.NET_START_FILE_TRANSPORT.equals(str)) {
-                if (presenter.supplyFile() == null || !new File(presenter.supplyFile()).exists()) {
+                if (sendFile == null || !new File(sendFile).exists()) {
                     cb.onInfo("服务端没有文件啦！请拉拽一个文件进来！");
                 } else {
                     cb.onInfo("客户端要求发送文件...开始发送...");
                     //5，打开输出流，准备写入数据
                     OutputStream outputStream = socket.getOutputStream();
-                    FileInputStream f = new FileInputStream(presenter.supplyFile());
+                    FileInputStream f = new FileInputStream(sendFile);
                     byte[] bytes = new byte[Consts.PAGE_SIZE];
                     while (worked) {
                         int len = f.read(bytes);

@@ -3,9 +3,7 @@ package com.allan.localnetworktransport.arch;
 import com.allan.localnetworktransport.bean.NamedAddr;
 
 public interface ISender {
-    NamedAddr prepare();
+    void prepare(String sendFile);
 
     NamedAddr getPreparedNamedAddr();
-
-    void setFile(String sendFilePathFile);
 }
