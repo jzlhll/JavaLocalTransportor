@@ -90,7 +90,7 @@ public class Sender implements ISender, IConnect {
                     mCallback.onInfo(Thread.currentThread().getName() + "开始等待客户端进入, " + compared);
                     Socket socket = serverSocket.accept();
                     //5，创建服务处理线程
-                    SenderThread socketThread = new SenderThread(socket, () -> file, mCallback);
+                    SenderThread socketThread = new SenderThread(socket, () -> mSendFile, mCallback);
                     //6，启动线程
                     socketThread.start();
                 } catch (IOException e) {
@@ -114,8 +114,9 @@ public class Sender implements ISender, IConnect {
         mCallback = callback;
     }
 
+    private String mSendFile;
     @Override
     public void setFile(String sendFilePathFile) {
-
+        mSendFile = sendFilePathFile;
     }
 }

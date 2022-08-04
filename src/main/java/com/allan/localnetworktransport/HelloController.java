@@ -59,7 +59,7 @@ public class HelloController {
             });
             connector = sender;
             sender.init();
-            sender.prepare(mFile);
+            sender.prepare();
         });
 
         receiveConnectBtn.setOnMouseClicked(e->{
@@ -87,10 +87,10 @@ public class HelloController {
         });
     }
 
-    private String mFile;
-
     public void setFile(String file) {
         System.out.println(file);
-        mFile = file;
+        if (connector instanceof Sender sender) {
+            sender.setFile(file);
+        }
     }
 }
