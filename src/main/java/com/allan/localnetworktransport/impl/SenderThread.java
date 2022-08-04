@@ -65,8 +65,10 @@ public class SenderThread extends Thread {
                     byte[] bytes = new byte[Consts.PAGE_SIZE];
                     while (worked) {
                         int len = f.read(bytes);
+                        System.out.println("read len " + len);
                         if (len > 0) {
                             outputStream.write(bytes, 0, len);
+                            outputStream.flush();
                         } else {
                             break;
                         }

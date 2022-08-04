@@ -107,5 +107,7 @@ public class HelloController {
     public void setFile(String file) {
         System.out.println(file);
         mSendFile = file;
+
+        senderInfo.setText("设置了文件：" + file);
     }
 }
