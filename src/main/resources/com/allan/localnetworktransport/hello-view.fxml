@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<AnchorPane fx:id="mainBox" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.allan.localnetworktransport.HelloController">
+    <VBox fx:id="firstVbox" spacing="8">
+        <Label text="我要做: "/>
+        <Button fx:id="asSenderBtn" text="服务发送端"/>
+        <Button fx:id="asReceiverBtn" text="接收者"/>
+    </VBox>
+
+    <VBox fx:id="senderBox" spacing="8" visible="false">
+        <Button fx:id="senderPrepareBtn" text="准备"/>
+        <Label fx:id="senderInfo"/>
+    </VBox>
+
+    <VBox fx:id="receiveBox" spacing="8" visible="false">
+        <Label text="我要做: "/>
+        <Button fx:id="findServersBtn" text="寻找服务端"/>
+        <Label fx:id="receiveInfo"/>
+    </VBox>
+
+</AnchorPane>
