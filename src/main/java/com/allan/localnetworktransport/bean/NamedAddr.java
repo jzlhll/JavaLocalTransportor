@@ -7,7 +7,7 @@ public final class NamedAddr {
 
     @Override
     public String toString() {
-        return "NamedAddr{" +
+        return "{" +
                 "ip='" + ip + '\'' +
                 ", port=" + port +
                 ", name='" + name + '\'' +

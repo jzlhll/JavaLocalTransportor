@@ -50,7 +50,6 @@ public class SenderThread extends Thread {
     private void runInner() throws IOException {
         worked = true;
         //1, 打开输入流，准备读取数据
-
         while (worked) {
             String str = dataInputStream.readUTF();
             //对于服务端而言，我们先等待客户端进入消息。如果我们认可这个事情，则继续下去

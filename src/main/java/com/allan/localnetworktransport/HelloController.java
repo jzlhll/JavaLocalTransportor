@@ -53,7 +53,10 @@ public class HelloController {
             }
 
             Sender sender = new Sender();
-            sender.setInfoCallback((info)-> Platform.runLater(()-> senderInfo.setText(info)));
+            sender.setInfoCallback((info)-> {
+                System.out.println(info);
+                Platform.runLater(()-> senderInfo.setText(info));
+            });
             connector = sender;
             sender.init();
             sender.prepare(mFile);
@@ -87,6 +90,7 @@ public class HelloController {
     private String mFile;
 
     public void setFile(String file) {
+        System.out.println(file);
         mFile = file;
     }
 }

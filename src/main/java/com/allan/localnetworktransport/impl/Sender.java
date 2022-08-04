@@ -63,7 +63,7 @@ public class Sender implements ISender, IConnect {
     }
 
     @Override
-    public NamedAddr prepare(String file) {
+    public NamedAddr prepare() {
         System.out.println("prepare() -- ");
         serverSocket = prepareSocket(0);
 
@@ -87,7 +87,7 @@ public class Sender implements ISender, IConnect {
             while (true){
                 //4，监听客户端
                 try {
-                    mCallback.onInfo(Thread.currentThread().getName() + "开始等待客户端进入。。。");
+                    mCallback.onInfo(Thread.currentThread().getName() + "开始等待客户端进入, " + compared);
                     Socket socket = serverSocket.accept();
                     //5，创建服务处理线程
                     SenderThread socketThread = new SenderThread(socket, () -> file, mCallback);
@@ -112,5 +112,10 @@ public class Sender implements ISender, IConnect {
     @Override
     public void setInfoCallback(IInfoCallback callback) {
         mCallback = callback;
+    }
+
+    @Override
+    public void setFile(String sendFilePathFile) {
+
     }
 }

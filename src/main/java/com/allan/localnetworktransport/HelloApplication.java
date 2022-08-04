@@ -33,7 +33,7 @@ public class HelloApplication extends Application {
             }
         };
         EventHandler<DragEvent> dragDrop = event -> {
-            System.out.println("drag dropped!");
+            System.out.println("drag dropped! ");
             List<File> currentDropped = event.getDragboard().getFiles();
             if (currentDropped != null && currentDropped.size() >= 1) {
                 for (var file : currentDropped) {
