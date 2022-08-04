@@ -7,6 +7,5 @@ public interface ISender {
 
     NamedAddr getPreparedNamedAddr();
 
-    void setInfoCallback(IInfoCallback callback);
     void setFile(String sendFilePathFile);
 }

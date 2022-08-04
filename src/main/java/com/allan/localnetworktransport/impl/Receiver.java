@@ -1,6 +1,7 @@
 package com.allan.localnetworktransport.impl;
 
 import com.allan.localnetworktransport.arch.IConnect;
+import com.allan.localnetworktransport.arch.IInfoCallback;
 import com.allan.localnetworktransport.arch.IReceiver;
 import com.allan.localnetworktransport.bean.Consts;
 import com.allan.localnetworktransport.util.ThreadCreator;
@@ -9,13 +10,14 @@ import java.io.*;
 import java.net.Socket;
 
 public class Receiver implements IReceiver, IConnect {
+    private IInfoCallback callback;
+
     private String mReceiveFile;
     private Socket mClientSocket;
     private final Object waitForStartReceiverLock = new Object();
 
     @Override
     public void init() {
-
     }
 
     @Override
@@ -27,6 +29,11 @@ public class Receiver implements IReceiver, IConnect {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @Override
+    public void setInfoCallback(IInfoCallback callback) {
+        this.callback = callback;
     }
 
     @Override
@@ -71,6 +78,11 @@ public class Receiver implements IReceiver, IConnect {
     @Override
     public void receiveFile(String saveFilePath) {
         mReceiveFile = saveFilePath;
+        if (mReceiveFile == null) {
+            callback.onInfo("没有存储文件路径。");
+            return;
+        }
+
         synchronized (waitForStartReceiverLock) {
             waitForStartReceiverLock.notify();
         }
